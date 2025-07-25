@@ -40,7 +40,10 @@ jobs:
         run: cat reports/eslint-results.sarif || echo "No SARIF report generated"
         working-directory: repository
 
+      - name: List report directory for debugging
+        run: ls -R repository/reports || echo "Report directory not found"
+
       - name: Upload SARIF report
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: reports/eslint-results.sarif
+          sarif_file: repository/reports/eslint-results.sarif
