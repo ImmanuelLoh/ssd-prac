@@ -1,15 +1,7 @@
-~/SSD-Practice/repository/package.json
-``>
+name: ESLint Code Analysis
 
-This means your Node.js app and ESLint config live **inside the `repository/` subfolder**, not the root of the repo. However, the GitHub Actions job is running `npm install` and `npx eslint` from the root by default — which causes the error.
+on: [push, pull_request]
 
----
-
-## ✅ Fix: Tell GitHub Actions to run from `repository/`
-
-Update your `cda-eslint.yml` to use the correct working directory for all steps involving Node:
-
-```yaml
 jobs:
   eslint:
     runs-on: ubuntu-latest
