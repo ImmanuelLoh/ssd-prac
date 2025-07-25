@@ -1,0 +1,50 @@
+services:
+  nginxwebsvr:
+    image: nginx:alpine
+    container_name: nginxwebsvr
+    ports:
+      - "80:80"
+    volumes:
+      - ./repository:/usr/share/nginx/html:ro # NEWLY ADDED TO MAP DIRECTORY TO VOLUMES TO DOCKER
+      - ./repository/nginx.conf:/etc/nginx/nginx.conf:ro # Mount custom nginx config
+    depends_on:
+      - nodeapp
+
+  nodeapp:
+    image: node:18-alpine
+    container_name: nodeapp
+    working_dir: /usr/src/app
+    volumes:
+      - ./repository:/usr/src/app
+    command: sh -c "npm install && node server.js"
+
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysqldb
+
+  mysqldb:
+    image: mysql:8.0
+    restart: always
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: testdb
+      MYSQL_USER: user
+      MYSQL_PASSWORD: pass
+
+  git-server:
+      build:
+        dockerfile: gitserver.Dockerfile
+        context: .
+      restart: always
+      ports:
+        - "3000:3000"
+      volumes:
+        - ./repos:/var/www/git
+      
+
+networks:
+  my_network:
+    driver: bridge
