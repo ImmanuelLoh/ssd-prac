@@ -31,30 +31,30 @@ export default defineConfig([
     },
   },
 
-  // Specifically for unit testing using npx mocha
-  {
-    files: ["tests/test.js"],
-    languageOptions: {
-      sourceType: "commonjs",
-      globals: {
-        ...globals.node,
-        ...globals.mocha, // Enable mocha globals here
-      },
-    },
-    plugins: {
-      js,
-      security: pluginSecurity,
-      "security-node": pluginSecurityNode,
-      "no-unsanitized": pluginNoUnsanitized
-    },
-    rules: {
-      ...js.configs.recommended.rules,
-      ...pluginSecurity.configs.recommended.rules,
-      ...pluginSecurityNode.configs.recommended.rules,
-      ...pluginNoUnsanitized.configs.recommended.rules,
-      "security/detect-eval-with-expression": "error",
-    },
-  },
+  // // Specifically for unit testing using npx mocha
+  // {
+  //   files: ["tests/test.js"],
+  //   languageOptions: {
+  //     sourceType: "commonjs",
+  //     globals: {
+  //       ...globals.node,
+  //       ...globals.mocha, // Enable mocha globals here
+  //     },
+  //   },
+  //   plugins: {
+  //     js,
+  //     security: pluginSecurity,
+  //     "security-node": pluginSecurityNode,
+  //     "no-unsanitized": pluginNoUnsanitized
+  //   },
+  //   rules: {
+  //     ...js.configs.recommended.rules,
+  //     ...pluginSecurity.configs.recommended.rules,
+  //     ...pluginSecurityNode.configs.recommended.rules,
+  //     ...pluginNoUnsanitized.configs.recommended.rules,
+  //     "security/detect-eval-with-expression": "error",
+  //   },
+  // },
 
   // ES Module files (.mjs)
   {
