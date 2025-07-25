@@ -1,7 +1,15 @@
-name: ESLint Code Analysis
+~/SSD-Practice/repository/package.json
+``>
 
-on: [push, pull_request]
+This means your Node.js app and ESLint config live **inside the `repository/` subfolder**, not the root of the repo. However, the GitHub Actions job is running `npm install` and `npx eslint` from the root by default — which causes the error.
 
+---
+
+## ✅ Fix: Tell GitHub Actions to run from `repository/`
+
+Update your `cda-eslint.yml` to use the correct working directory for all steps involving Node:
+
+```yaml
 jobs:
   eslint:
     runs-on: ubuntu-latest
@@ -12,37 +20,35 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-        with:
-          path: .
 
       - name: Cache Node.js modules
         uses: actions/cache@v4
         with:
-          path: node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('**/package-lock.json') }}
+          path: repository/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('repository/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-modules
 
       - name: Install Node.js dependencies
         run: npm install
-        working-directory: ${{ github.workspace }}
+        working-directory: repository
 
       - name: Create reports directory
         run: mkdir -p reports
-        working-directory: ${{ github.workspace }}
+        working-directory: repository
 
       - name: Install ESLint SARIF Formatter
         run: npm install @microsoft/eslint-formatter-sarif --save-dev
-        working-directory: ${{ github.workspace }}
+        working-directory: repository
 
       - name: Run ESLint with SARIF output
         run: npx eslint . --format @microsoft/eslint-formatter-sarif --output-file reports/eslint-results.sarif || true
-        working-directory: ${{ github.workspace }}
+        working-directory: repository
 
       - name: Debug ESLint Output
         run: cat reports/eslint-results.sarif || echo "No SARIF report generated"
-        working-directory: ${{ github.workspace }}
+        working-directory: repository
 
       - name: Upload SARIF report
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: reports/eslint-results.sarif
+          sarif_file: repository/reports/eslint-results.sarif
