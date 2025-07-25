@@ -1,0 +1,62 @@
+name: CI - Integration, Dependency Check & UI Test
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: |
+          cd src
+          npm install
+
+      - name: Run integration tests
+        run: |
+          cd src
+          npm test
+
+      - name: Run Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: 'MyApp'
+          path: ./src
+          format: 'HTML'
+          out: './odc-reports'
+
+      - name: Start Node app in background
+        run: |
+          cd src
+          nohup node server.js > app.log 2>&1 &
+          sleep 5
+
+      - name: Test UI via HTTP
+        run: |
+          curl -f http://localhost:3000 | grep "Browser and Timestamp"
